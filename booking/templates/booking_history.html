@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head><title>Booking History</title></head>
+<body>
+    <h2>Your Booking History</h2>
+    <ul>
+        {% for booking in object_list %}
+            <li>
+                <strong>{{ booking.show.title }}</strong> |
+                Booked {{ booking.seats_booked }} seat(s) on {{ booking.booked_at }}
+            </li>
+        {% empty %}
+            <li>No bookings yet.</li>
+        {% endfor %}
+    </ul>
+    <p><a href="{% url 'show-list' %}">Back to Shows</a></p>
+    <p><a href="{% url 'logout' %}">Logout</a></p>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<h2>Available Shows</h2>
+{% for show in shows %}
+    <div>
+        <strong>{{ show.title }}</strong> | {{ show.date }} | Seats left: {{ show.available_seats }}
+        <form method="post" action="{% url 'book-ticket' %}">
+            {% csrf_token %}
+            <input type="hidden" name="show_id" value="{{ show.id }}">
+            <input type="number" name="seats" min="1" placeholder="Seats">
+            <button type="submit">Book</button>
+        </form>
+    </div>
+{% endfor %}
