@@ -4,12 +4,15 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from .models import Show, Booking
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
 
+# Show List View
 class ShowListView(ListView):
     model = Show
     template_name = 'show_list.html'
     context_object_name = 'shows'
 
+# Booking Create View
 class BookingCreateView(LoginRequiredMixin, TemplateView):
     template_name = 'book_ticket.html'
 
@@ -24,6 +27,7 @@ class BookingCreateView(LoginRequiredMixin, TemplateView):
             return redirect('booking-history')
         return render(request, self.template_name, {'error': 'Not enough seats'})
 
+# Booking History View
 class BookingHistoryView(LoginRequiredMixin, ListView):
     model = Booking
     template_name = 'booking_history.html'
@@ -31,21 +35,36 @@ class BookingHistoryView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Booking.objects.filter(user=self.request.user)
 
-def register_view(request):
-    if request.method == 'POST':
-        user = User.objects.create_user(username=request.POST['username'], password=request.POST['password'])
+# Register View
+class RegisterView(View):
+    template_name = 'register.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = User.objects.create_user(username=username, password=password)
         login(request, user)
         return redirect('show-list')
-    return render(request, 'register.html')
 
-def login_view(request):
-    if request.method == 'POST':
-        user = authenticate(username=request.POST['username'], password=request.POST['password'])
+# Login View
+class LoginView(View):
+    template_name = 'login.html'
+
+    def get(self, request):
+        return render(request, self.template_name)
+
+    def post(self, request):
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(username=username, password=password)
         if user:
             login(request, user)
             return redirect('show-list')
-    return render(request, 'login.html')
+        return render(request, self.template_name, {'error': 'Invalid credentials'})
 
-def logout_view(request):
-    logout(request)
-    return redirect('login')
+# Logout View
+class CustomLogoutView(LogoutView):
+    next_page = 'login'  # Redirect after logout
